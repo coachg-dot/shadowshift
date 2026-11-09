@@ -78,6 +78,27 @@ function run(width,height){
  if(advanced!==2||s.floor!==2||s.cells!==0)problems.push('floor advance repeated');
  // Confirm progress was persisted and can be parsed.
  if(!JSON.parse(localStorage.getItem('shadowshift_survival_v1')).floor)problems.push('save missing');
+ // Teacher-aligned geometry and pre-algebra generate valid answer choices.
+ for(const topic of ['circles','algebra']){
+  for(let i=0;i<50;i++){
+   const question=makeLearningQ(topic);
+   if(!question.options.includes(question.result)||new Set(question.options).size!==4||!question.hint)problems.push('invalid '+topic+' question');
+  }
+ }
+ // Rare mastery skins require the goal and a correct final answer.
+ const relic=masteryRelics[0];s.mastery.circles=0;
+ startMastery(relic);
+ if(masteryChallenge)problems.push('rare unlocked too early');
+ s.mastery.circles=relic.goal;view('shop');startMastery(relic);
+ if(masteryChallenge!==relic)problems.push('rare challenge did not open');
+ else {
+  answer(q.options.find(n=>n!==q.result));
+  if(s.owned.includes(relic.id))problems.push('wrong rare answer unlocked skin');
+  answer(q.result);
+  if(!s.owned.includes(relic.id)||s.skin!==relic.id)problems.push('rare skin not equipped');
+  const restoredRare=restoreProgress(JSON.parse(localStorage.getItem('shadowshift_survival_v1')));
+  if(!restoredRare.owned.includes(relic.id)||restoredRare.mastery.circles!==relic.goal)problems.push('rare save failed');
+ }
  // Seasonal challenge unlocks once, and cannot be completed twice.
  const holiday=holidays[0];s.correct=holiday.goal;s.holidayStarts[holiday.id]=0;
  holidayStart(holiday);
