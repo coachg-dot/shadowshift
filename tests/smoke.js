@@ -49,6 +49,17 @@ function run(width,height){
  if(advanced!==2||s.floor!==2||s.cells!==0)problems.push('floor advance repeated');
  // Confirm progress was persisted and can be parsed.
  if(!JSON.parse(localStorage.getItem('shadowshift_survival_v1')).floor)problems.push('save missing');
+ // Seasonal challenge unlocks once, and cannot be completed twice.
+ const holiday=holidays[0];s.correct=holiday.goal;s.holidayStarts[holiday.id]=0;
+ holidayStart(holiday);
+ if(!holidayChallenge)problems.push('seasonal challenge did not open');
+ else {
+  answer(q.result);
+  if(!s.owned.includes(holiday.id))problems.push('seasonal unlock missing');
+  const ownedCount=s.owned.filter(id=>id===holiday.id).length;
+  answer(q.result);holidayStart(holiday);
+  if(s.owned.filter(id=>id===holiday.id).length!==ownedCount)problems.push('seasonal duplicate');
+ }
  problems;`;
  const problems=vm.runInContext(checks,sandbox,{timeout:5000});
  assert.equal(problems.length,0,problems.join('; '));
