@@ -126,6 +126,14 @@ fs.mkdirSync('test-results',{recursive:true});
    await page.locator('#answers button').getByText(String(megaAnswer),{exact:true}).click();
    assert.equal(await page.locator('#keys').innerText(),'3','Mega Cell restores all power');
    for(const floor of [10,20,30,40]){
+    await page.evaluate(f=>{s.floor=f-1;s.cells=3;s.lastRewardedFloor=f-2;configureFloor();paused=false;$('winOverlay').classList.add('hidden');clearFloor();advance();},floor);
+    assert.equal(await page.locator('#bossIntroOverlay').isVisible(),true,'Boss reveal must appear before floor '+floor);
+    assert.equal(await page.locator('#bossIntroName').innerText(),await page.evaluate(()=>milestones[s.floor].name));
+    assert.match(await page.locator('#bossIntroTopic').innerText(),/MATH ATTACKS:/);
+    assert.equal(await page.evaluate(()=>paused),true,'Boss intro freezes gameplay');
+    await page.locator('#bossIntroStart').click();
+    assert.equal(await page.locator('#bossIntroOverlay').isVisible(),false,'Boss intro dismisses');
+    assert.equal(await page.evaluate(()=>paused),false,'Gameplay resumes after intro');
     await page.evaluate(f=>{s.floor=f;s.cells=3;s.loot=[];s.lastRewardedFloor=f-1;configureFloor();spawnMonsters();monsters=[];paused=false;p={x:exit.x+.5,y:exit.y+.5};save();},floor);
     if(viewport.width<600)await page.locator('#interactMobile').click();
     else await page.keyboard.press('e');
