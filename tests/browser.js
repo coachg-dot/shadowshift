@@ -73,6 +73,12 @@ fs.mkdirSync('test-results',{recursive:true});
    await page.reload({waitUntil:'load'});
    assert.match(await page.locator('#effectsToggle').innerText(),/LOW/);
    await page.screenshot({path:'test-results/shadowshift-'+viewport.width+'-saved.png',fullPage:true});
+   // A malformed save must not break startup or strand the player.
+   await page.evaluate(()=>localStorage.setItem('shadowshift_survival_v1',JSON.stringify({floor:-5,coins:'broken',owned:null,loot:null,facts:[]})));
+   await page.reload({waitUntil:'load'});
+   assert.equal(await page.locator('#floor').innerText(),'1','Corrupt save must recover to floor 1');
+   assert.equal(await page.locator('#coins').innerText(),'0','Invalid coins must recover safely');
+   await page.evaluate(()=>localStorage.removeItem('shadowshift_survival_v1'));
    assert.deepEqual(errors,[],'Browser JavaScript errors: '+errors.join(', '));
    await page.close();
    console.log('PASS Chromium',viewport.width+'x'+viewport.height,'navigation, break, math, modal safety, save/reload, graphics');
