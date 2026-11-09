@@ -82,6 +82,22 @@ function run(width,height){
  if(advanced!==2||s.floor!==2||s.cells!==0)problems.push('floor advance repeated');
  // Confirm progress was persisted and can be parsed.
  if(!JSON.parse(localStorage.getItem('shadowshift_survival_v1')).floor)problems.push('save missing');
+ // Optional Mega Cell must offer a harder circle challenge and unlock all three cells.
+ s.floor=3;s.cells=0;s.loot=[];configureFloor();monsters=[];
+ const mega=megaPoint();
+ if(!findPath(1.5,1.5,mega.x+.5,mega.y+.5).length)problems.push('Mega Cell unreachable');
+ p={x:mega.x+.5,y:mega.y+.5};paused=false;interact();
+ if(!megaChallenge||q.topic!=='circles')problems.push('Mega Cell challenge not opened');
+ else {
+  answer(q.options.find(n=>n!==q.result));
+  if(s.cells!==0)problems.push('wrong Mega Cell answer rewarded');
+  answer(q.result);
+  if(s.cells!==3||!s.loot.includes('floor3mega'))problems.push('Mega Cell did not unlock exit');
+  const reward=s.coins;answer(q.result);
+  if(s.coins!==reward)problems.push('Mega Cell duplicate reward');
+  const restoredMega=restoreProgress(JSON.parse(localStorage.getItem('shadowshift_survival_v1')));
+  if(restoredMega.cells!==3)problems.push('Mega Cell progress not saved');
+ }
  // Teacher-aligned geometry and pre-algebra generate valid answer choices.
  for(const topic of ['circles','algebra']){
   for(let i=0;i<50;i++){
