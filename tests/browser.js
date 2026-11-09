@@ -33,7 +33,8 @@ fs.mkdirSync('test-results',{recursive:true});
    await page.getByRole('button',{name:'Return when ready'}).click();
    assert.equal(await page.locator('#breakOverlay').isVisible(),false);
    await page.evaluate(()=>{p={x:terminals[0].x+.5,y:terminals[0].y+.5};monsters=[];});
-   await page.evaluate(()=>interact());
+   if(viewport.width<600)await page.locator('#interactMobile').click();
+   else await page.keyboard.press('e');
    assert.equal(await page.locator('#mathOverlay').isVisible(),true);
    const result=await page.evaluate(()=>q.result);
    await page.locator('#nav-shop').evaluate(b=>b.click());
@@ -49,12 +50,16 @@ fs.mkdirSync('test-results',{recursive:true});
    // Complete a floor through its three terminals and the exit.
    await page.evaluate(()=>{monsters=[];});
    for(let i=1;i<3;i++){
-    await page.evaluate(i=>{p={x:terminals[i].x+.5,y:terminals[i].y+.5};interact();},i);
+    await page.evaluate(i=>{p={x:terminals[i].x+.5,y:terminals[i].y+.5};},i);
+    if(viewport.width<600)await page.locator('#interactMobile').click();
+    else await page.keyboard.press('e');
     assert.equal(await page.locator('#mathOverlay').isVisible(),true);
     await page.evaluate(()=>answer(q.result));
     assert.equal(await page.locator('#keys').innerText(),String(i+1));
    }
-   await page.evaluate(()=>{p={x:exit.x+.5,y:exit.y+.5};interact();});
+   await page.evaluate(()=>{p={x:exit.x+.5,y:exit.y+.5};});
+   if(viewport.width<600)await page.locator('#interactMobile').click();
+   else await page.keyboard.press('e');
    assert.equal(await page.locator('#winOverlay').isVisible(),true);
    const rewardCoins=await page.locator('#coins').innerText();
    if(viewport.width<600){
