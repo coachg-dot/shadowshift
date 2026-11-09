@@ -155,6 +155,11 @@ fs.mkdirSync('test-results',{recursive:true});
      assert.equal(await page.locator('#floor').innerText(),String(floor+1));
     }
    }
+   await page.reload({waitUntil:'load'});
+   assert.equal(await page.locator('#floor').innerText(),'40','Completed campaign must stay at Floor 40 on reload');
+   assert.equal(await page.locator('#winOverlay').isVisible(),true,'Champion ending should persist after reload');
+   assert.match(await page.locator('#winText').innerText(),/YOU DID IT/);
+   assert.equal(await page.locator('#winOverlay button').isDisabled(),true,'Completed campaign must not advance');
    await page.evaluate(()=>{s.floor=2;s.cells=0;s.loot=[];s.lastRewardedFloor=1;configureFloor();spawnMonsters();monsters=[];paused=false;$('winOverlay').classList.add('hidden');$('winOverlay').querySelector('button').disabled=false;save();});
    // Unlock a super-rare relic through the visible shop challenge.
    await page.evaluate(()=>{s.mastery.circles=3;save();});
