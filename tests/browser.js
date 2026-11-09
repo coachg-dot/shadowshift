@@ -2,14 +2,15 @@
 // Run after: npm install --no-save playwright && npx playwright install chromium
 // Start a local server at http://127.0.0.1:8765 before running.
 'use strict';
-const {chromium}=require('playwright');
+const {chromium,webkit}=require('playwright');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 fs.mkdirSync('test-results',{recursive:true});
 (async()=>{
- const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
+ const engine=process.env.SHADOWSHIFT_BROWSER==='webkit'?webkit:chromium;
+ const browser=await engine.launch({headless:true,...(engine===chromium?{args:['--no-sandbox']}:{})});
  try{
-  for(const viewport of [{width:1280,height:800},{width:390,height:844},{width:320,height:700}]){
+  for(const viewport of (engine===webkit?[{width:390,height:844},{width:320,height:700}]:[{width:1280,height:800},{width:390,height:844},{width:320,height:700}])){
    const page=await browser.newPage({viewport,isMobile:viewport.width<600,hasTouch:viewport.width<600});
    const errors=[];
    page.on('pageerror',e=>errors.push(e.message));
