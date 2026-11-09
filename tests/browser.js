@@ -60,6 +60,7 @@ fs.mkdirSync('test-results',{recursive:true});
    assert.equal(await page.locator('#floor').innerText(),'2');
    await page.reload({waitUntil:'load'});
    assert.equal(await page.locator('#floor').innerText(),'2');
+   await page.screenshot({path:'test-results/shadowshift-'+viewport.width+'-floor2.png',fullPage:true});
    await page.locator('#effectsToggle').click();
    assert.match(await page.locator('#effectsToggle').innerText(),/LOW/);
    await page.reload({waitUntil:'load'});
