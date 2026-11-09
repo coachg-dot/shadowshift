@@ -95,7 +95,7 @@ function run(width,height){
  $('winOverlay').classList.add('hidden');
  // Four mandatory boss milestones, distinct skins, and a 40-floor campaign cap.
  for(const floor of [10,20,30,40]){
-  s.floor=floor;s.cells=3;s.loot=[];paused=false;configureFloor();spawnMonsters();
+  $('bossIntroOverlay').classList.add('hidden');s.floor=floor;s.cells=3;s.loot=[];paused=false;configureFloor();spawnMonsters();
   clearFloor();
   if(!bossChallenge||$('mathOverlay').classList.contains('hidden'))problems.push('boss gate '+floor);
   for(let seal=0;seal<3;seal++)answer(q.result);
@@ -103,7 +103,7 @@ function run(width,height){
   clearFloor();
   if(!s.owned.includes(milestones[floor].skin)||$('winOverlay').classList.contains('hidden'))problems.push('boss reward '+floor);
   if(floor===40){const before=s.floor;advance();if(s.floor!==before)problems.push('campaign exceeded 40')}
-  else advance();
+  else {advance();if(!$('bossIntroOverlay').classList.contains('hidden'))dismissBossIntro()}
   $('winOverlay').classList.add('hidden');paused=false;
  }
  // Optional Mega Cell must offer a harder circle challenge and unlock all three cells.
