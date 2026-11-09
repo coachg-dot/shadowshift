@@ -35,6 +35,25 @@ fs.mkdirSync('test-results',{recursive:true});
    assert.equal(await page.locator('#progress').isVisible(),true);
    await page.locator('#nav-game').click();
    await page.screenshot({path:'test-results/shadowshift-'+viewport.width+'-initial.png',fullPage:true});
+   // Check actual movement input, not only direct game functions.
+   await page.evaluate(()=>{monsters=[];p={x:1.5,y:1.5};});
+   const beforeMove=await page.evaluate(()=>({x:p.x,y:p.y}));
+   if(viewport.width<600){
+    const right=page.locator('[data-move="right"]');
+    const box=await right.boundingBox();
+    assert.ok(box,'Right movement control must be visible');
+    await page.mouse.move(box.x+box.width/2,box.y+box.height/2);
+    await page.mouse.down();
+    await page.waitForTimeout(300);
+    await page.mouse.up();
+   }else{
+    await page.keyboard.down('ArrowRight');
+    await page.waitForTimeout(300);
+    await page.keyboard.up('ArrowRight');
+   }
+   const afterMove=await page.evaluate(()=>({x:p.x,y:p.y}));
+   assert.ok(afterMove.x>beforeMove.x,'Right movement must actually move the character');
+
    await page.getByRole('button',{name:/30-sec Safe Room/}).click();
    assert.equal(await page.locator('#breakOverlay').isVisible(),true);
    assert.equal(await page.evaluate(()=>paused),true);
