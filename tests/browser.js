@@ -101,6 +101,38 @@ fs.mkdirSync('test-results',{recursive:true});
    await page.reload({waitUntil:'load'});
    assert.equal(await page.locator('#floor').innerText(),'2');
    await page.screenshot({path:'test-results/shadowshift-'+viewport.width+'-floor2.png',fullPage:true});
+   // Real browser interaction: Mega Cell, all four guardian gates, and final campaign.
+   await page.evaluate(()=>{s.floor=9;s.cells=0;s.loot=[];s.lastRewardedFloor=8;configureFloor();spawnMonsters();monsters=[];paused=false;p={x:megaPoint().x+.5,y:megaPoint().y+.5};save();});
+   if(viewport.width<600)await page.locator('#interactMobile').click();
+   else await page.keyboard.press('e');
+   assert.equal(await page.locator('#mathOverlay').isVisible(),true,'Mega Cell should open');
+   assert.equal(await page.evaluate(()=>q.topic),'circles');
+   const megaAnswer=await page.evaluate(()=>q.result);
+   await page.locator('#answers button').getByText(String(megaAnswer),{exact:true}).click();
+   assert.equal(await page.locator('#keys').innerText(),'3','Mega Cell restores all power');
+   for(const floor of [10,20,30,40]){
+    await page.evaluate(f=>{s.floor=f;s.cells=3;s.loot=[];s.lastRewardedFloor=f-1;configureFloor();spawnMonsters();monsters=[];paused=false;p={x:exit.x+.5,y:exit.y+.5};save();},floor);
+    if(viewport.width<600)await page.locator('#interactMobile').click();
+    else await page.keyboard.press('e');
+    assert.equal(await page.locator('#mathOverlay').isVisible(),true,'Guardian '+floor+' should gate exit');
+    for(let seal=0;seal<3;seal++){
+     const correct=await page.evaluate(()=>q.result);
+     await page.locator('#answers button').getByText(String(correct),{exact:true}).click();
+    }
+    assert.equal(await page.locator('#mathOverlay').isVisible(),false,'Guardian seals completed');
+    if(viewport.width<600)await page.locator('#interactMobile').click();
+    else await page.keyboard.press('e');
+    assert.equal(await page.locator('#winOverlay').isVisible(),true,'Guardian '+floor+' cleared');
+    assert.equal(await page.evaluate(f=>s.owned.includes(milestones[f].skin),floor),true,'Permanent milestone skin');
+    await page.locator('#winOverlay button').click();
+    if(floor===40){
+     assert.equal(await page.locator('#floor').innerText(),'40','Campaign must stop at 40');
+     assert.match(await page.locator('#winText').innerText(),/YOU DID IT/);
+    }else{
+     assert.equal(await page.locator('#floor').innerText(),String(floor+1));
+    }
+   }
+   await page.evaluate(()=>{s.floor=2;s.cells=0;s.loot=[];s.lastRewardedFloor=1;configureFloor();spawnMonsters();monsters=[];paused=false;$('winOverlay').classList.add('hidden');$('winOverlay').querySelector('button').disabled=false;save();});
    // Unlock a super-rare relic through the visible shop challenge.
    await page.evaluate(()=>{s.mastery.circles=3;save();});
    await page.locator('#nav-shop').click();
