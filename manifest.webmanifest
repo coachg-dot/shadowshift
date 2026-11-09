@@ -1,0 +1,20 @@
+{
+  "id": "./start.html",
+  "name": "Shadowshift — Math Survival Adventure",
+  "short_name": "Shadowshift",
+  "description": "Survive 40 floors, solve math challenges, defeat four guardians.",
+  "start_url": "./start.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#070b16",
+  "theme_color": "#17102c",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
