@@ -113,6 +113,11 @@ fs.mkdirSync('test-results',{recursive:true});
    }
    await page.reload({waitUntil:'load'});
    assert.equal(await page.locator('#floor').innerText(),'2');
+   // Simulate iPhone Safari moving to the background before reopening.
+   await page.evaluate(()=>{s.coins+=7;document.dispatchEvent(new Event('visibilitychange'));window.dispatchEvent(new Event('pagehide'));});
+   await page.reload({waitUntil:'load'});
+   assert.equal(await page.locator('#floor').innerText(),'2','Backgrounding must preserve floor');
+   assert.match(await page.locator('#saveStatusTop').innerText(),/Saved.*Floor 2/,'Visible saved-floor indicator must agree with progress');
    await page.screenshot({path:'test-results/shadowshift-'+viewport.width+'-floor2.png',fullPage:true});
    // Real browser interaction: Mega Cell, all four guardian gates, and final campaign.
    await page.evaluate(()=>{s.floor=9;s.cells=0;s.loot=[];s.lastRewardedFloor=8;configureFloor();spawnMonsters();monsters=[];paused=false;p={x:megaPoint().x+.5,y:megaPoint().y+.5};save();});
