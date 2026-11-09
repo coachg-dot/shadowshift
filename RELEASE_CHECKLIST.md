@@ -25,10 +25,10 @@ Open https://coachg-dot.github.io/shadowshift/ in a normal browser (not private 
 - [ ] Opening the math question or Safe Room freezes monster movement.
 - [ ] Completing all three terminals unlocks the exit.
 - [ ] Finishing the floor advances to Floor 2.
-- [ ] Closing and reopening Safari preserves coins, skins, and floor progress; visible indicator reads `✓ Saved • Floor 2`.
+- [x] Closing and reopening Safari resumes at Floor 2 (confirmed by player on physical iPhone). Coins and skins retention still need a separate check.
 - [ ] Lock iPhone / switch apps, return to Safari, and verify Floor 2 remains saved.
 - [ ] Export a backup from Progress and verify it downloads to the iPhone Files app.
-- [ ] Floor 10 boss splash and boss encounter display correctly (previously player-tested; reward still to verify).
+- [x] Floor 10 boss splash and boss encounter display correctly (player-tested; reward still to verify).
 - [ ] Floor 10 boss awards bonus coins and the Sentinel Slayer skin.
 - [ ] Floor 20 Professor Plus-a-Saurus reveal, three math seals, and reward.
 - [ ] Floor 30 Multiplying Munchosaur reveal, three math seals, and reward.
@@ -48,4 +48,4 @@ Open https://coachg-dot.github.io/shadowshift/ in a normal browser (not private 
 - Progress is stored in each browser's local storage; it does **not** automatically sync between phone and Chromebook.
 - Clearing browser/site data or using private browsing may remove progress.
 - WebKit and Chromium emulation do not substitute for testing on a physical iPhone.
-- A prior Chrome session restarted at Floor 1; do not close the save issue until iPhone Safari retention is explicitly confirmed.
+- A prior Chrome session restarted at Floor 1; physical iPhone Safari successfully resumed at Floor 2. Chrome-specific storage persistence remains unverified.
