@@ -16,6 +16,19 @@ function run(width,height){
  const sandbox={document,window,localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},requestAnimationFrame(){},setInterval(){return 1},clearInterval(){},console,Math,Set,Map};
  vm.createContext(sandbox);
  vm.runInContext(script,sandbox,{timeout:2000});
+ // Damaged save files should not prevent the game from booting.
+ const malformed=[
+  '{"floor":-9,"coins":"oops","owned":null,"facts":[]}',
+  '{"floor":2,"owned":["lamp",42,"lamp"],"loot":false,"holidayStarts":null}',
+  '{"floor":3,"facts":{"2+2":null,"3+4":{"right":"bad","wrong":2}}}',
+  'null'
+ ];
+ for(const raw of malformed){
+  storage.set('shadowshift_survival_v1',raw);
+  const restored=vm.runInContext('restoreProgress(JSON.parse(localStorage.getItem("shadowshift_survival_v1")))',sandbox);
+  assert.ok(restored.floor>=1&&Number.isFinite(restored.coins)&&Array.isArray(restored.owned));
+ }
+ storage.delete('shadowshift_survival_v1');
  const checks=`
  let problems=[];
  for(let floor=1;floor<=18;floor++){
