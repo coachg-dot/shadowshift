@@ -16,6 +16,14 @@ function run(width,height){
  const sandbox={document,window,localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},requestAnimationFrame(){},setInterval(){return 1},clearInterval(){},console,Math,Set,Map};
  vm.createContext(sandbox);
  vm.runInContext(script,sandbox,{timeout:2000});
+ // Verify primary and backup saves, including recovery when the primary is corrupt.
+ vm.runInContext('s.floor=10;s.lastRewardedFloor=9;s.coins=420;save()',sandbox);
+ assert.equal(JSON.parse(storage.get('shadowshift_survival_v1')).floor,10,'primary save persists current floor');
+ assert.equal(JSON.parse(storage.get('shadowshift_survival_backup_v1')).floor,10,'backup save persists current floor');
+ storage.set('shadowshift_survival_v1','{corrupted');
+ assert.equal(vm.runInContext('readSavedProgress().floor',sandbox),10,'backup restores floor after primary corruption');
+ assert.equal(vm.runInContext('readSavedProgress().coins',sandbox),420,'backup restores earned coins');
+ vm.runInContext('s=initial();save()',sandbox);
  // Damaged save files should not prevent the game from booting.
  const malformed=[
   '{"floor":-9,"coins":"oops","owned":null,"facts":[]}',
