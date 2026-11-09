@@ -16,9 +16,17 @@ fs.mkdirSync('test-results',{recursive:true});
    await page.goto('http://127.0.0.1:8765/',{waitUntil:'load'});
    await page.locator('#world').waitFor({state:'visible'});
    await page.waitForTimeout(150);
+   const overflow=await page.evaluate(()=>({document:document.documentElement.scrollWidth,viewport:window.innerWidth}));
+   assert.ok(overflow.document<=overflow.viewport+2,'Horizontal overflow at '+viewport.width+'px: '+JSON.stringify(overflow));
    assert.equal(await page.locator('#floor').innerText(),'1');
    const dims=await page.locator('#world').evaluate(c=>({width:c.width,height:c.height}));
    assert.equal(dims.width,viewport.width<600?360:720);
+   if(viewport.width<600){
+    const controls=await page.locator('[data-move]').count();
+    assert.equal(controls,4,'Mobile must have four directional controls');
+    const touchSize=await page.locator('[data-move="up"]').boundingBox();
+    assert.ok(touchSize&&touchSize.width>=44&&touchSize.height>=44,'Movement targets must be touch-friendly');
+   }
    await page.locator('#nav-shop').click();
    assert.equal(await page.locator('#shop').isVisible(),true);
    await page.locator('#nav-locker').click();
