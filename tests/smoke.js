@@ -2,7 +2,8 @@
 'use strict';
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 const html=fs.readFileSync('index.html','utf8');
-const script=html.split('<script>').pop().split('</script>')[0];
+const script=[...html.matchAll(/<script(?:\\s[^>]*)?>([\\s\\S]*?)<\\/script>/g)].map(m=>m[1]).find(src=>src.includes('function initial(')||src.includes('const milestones='));
+assert.ok(script,'gameplay script must be present');
 function run(width,height){
  const elements=new Map(),handlers={};
  const canvasContext=new Proxy({}, {get:(_,key)=>key==='createRadialGradient'||key==='createLinearGradient'?()=>({addColorStop(){}}):()=>{},set:()=>true});
