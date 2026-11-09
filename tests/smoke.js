@@ -53,7 +53,7 @@ function run(width,height){
  if(s.coins!==after||s.cells!==1)problems.push('duplicate answer reward');
  // Game simulation must freeze behind math puzzles and menus.
  const frozenTick=tick;
- paused=false;
+ $('mathOverlay').classList.remove('hidden');paused=false;
  update(.25);
  if(tick!==frozenTick)problems.push('simulation advanced under math overlay');
  $('mathOverlay').classList.add('hidden');
