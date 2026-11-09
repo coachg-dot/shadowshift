@@ -38,6 +38,17 @@ function run(width,height){
  if(s.coins!==before||s.cells!==0)problems.push('wrong answer reward');
  answer(q.result);const after=s.coins;answer(q.result);
  if(s.coins!==after||s.cells!==1)problems.push('duplicate answer reward');
+ // A floor can be rewarded once, even after repeated interaction.
+ s.cells=3;paused=false;
+ const cleared=s.clears,clearCoins=s.coins;
+ clearFloor();
+ if(s.clears!==cleared+1||s.coins!==clearCoins+75)problems.push('floor reward missing');
+ const paid=s.coins;clearFloor();
+ if(s.coins!==paid||s.clears!==cleared+1)problems.push('duplicate floor reward');
+ advance();const advanced=s.floor;advance();
+ if(advanced!==2||s.floor!==2||s.cells!==0)problems.push('floor advance repeated');
+ // Confirm progress was persisted and can be parsed.
+ if(!JSON.parse(localStorage.getItem('shadowshift_survival_v1')).floor)problems.push('save missing');
  problems;`;
  const problems=vm.runInContext(checks,sandbox,{timeout:5000});
  assert.equal(problems.length,0,problems.join('; '));
