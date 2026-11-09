@@ -28,6 +28,10 @@ function run(width,height){
   const restored=vm.runInContext('restoreProgress(JSON.parse(localStorage.getItem("shadowshift_survival_v1")))',sandbox);
   assert.ok(restored.floor>=1&&Number.isFinite(restored.coins)&&Array.isArray(restored.owned));
  }
+ const missedGeometry=vm.runInContext('restoreProgress({mastery:{circles:3,algebra:2},facts:{"circles:Find the circumference. Diameter = 8 units. Use π = 3.14. Round to 2 decimals.":{right:1,wrong:2},"algebra:Solve for x: 2x + 3 = 13":{right:0,wrong:1}}})',sandbox);
+ assert.equal(missedGeometry.mastery.circles,3);
+ assert.equal(missedGeometry.mastery.algebra,2);
+ assert.equal(Object.keys(missedGeometry.facts).length,2,'Geometry and algebra retries must survive reload');
  const inconsistent=vm.runInContext('restoreProgress({floor:4,cells:3,loot:["floor4term0","floor4term2"]})',sandbox);
  assert.equal(inconsistent.cells,2,'Recovered cell count must match restored terminals');
  storage.delete('shadowshift_survival_v1');
