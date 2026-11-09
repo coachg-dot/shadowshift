@@ -9,7 +9,7 @@ fs.mkdirSync('test-results',{recursive:true});
 (async()=>{
  const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
  try{
-  for(const viewport of [{width:1280,height:800},{width:390,height:844}]){
+  for(const viewport of [{width:1280,height:800},{width:390,height:844},{width:320,height:700}]){
    const page=await browser.newPage({viewport,isMobile:viewport.width<600,hasTouch:viewport.width<600});
    const errors=[];
    page.on('pageerror',e=>errors.push(e.message));
