@@ -52,12 +52,13 @@ const terminalsByFloor=[
 [{x:8,y:3},{x:4,y:7},{x:14,y:9}],
 [{x:13,y:2},{x:6,y:6},{x:11,y:9}]];
 terminals=terminalsByFloor[variant];
-chests=[{x:15-variant%3,y:2},{x:3+variant%3,y:8}];
+chests=[{x:15-variant%3,y:2},{x:3+variant%3,y:variant===5?7:8}];
+hidingSpots=[{x:[5,8,5,7,5,5][variant],y:7},{x:[11,11,13,11,11,11][variant],y:8}];
 exit={x:16,y:10};safe={x:2,y:10};
 $('levelTitle').textContent='FLOOR '+s.floor+' — '+floorNames[variant];
 $('world').setAttribute('aria-label','Top-down map of '+floorNames[variant]);
 }
-const hidingSpots=[{x:5,y:7},{x:11,y:8}];
+let hidingSpots=[{x:5,y:7},{x:11,y:8}];
 let hiding=false,hideCooldown=0,particles=[],screenPulse=0;
 const sideMissions=[{x:9,y:7},{x:13,y:9},{x:4,y:7},{x:8,y:8},{x:6,y:9},{x:14,y:7}];
 const missionNames=['LOST RADIO','TUNNEL MAP','LAB JOURNAL','PRISON KEYCARD','REACTOR BLUEPRINT','NIGHT WARD RECORD'];
