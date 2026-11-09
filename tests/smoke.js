@@ -82,6 +82,19 @@ function run(width,height){
  if(advanced!==2||s.floor!==2||s.cells!==0)problems.push('floor advance repeated');
  // Confirm progress was persisted and can be parsed.
  if(!JSON.parse(localStorage.getItem('shadowshift_survival_v1')).floor)problems.push('save missing');
+ // Four mandatory boss milestones, distinct skins, and a 40-floor campaign cap.
+ for(const floor of [10,20,30,40]){
+  s.floor=floor;s.cells=3;s.loot=[];paused=false;configureFloor();spawnMonsters();
+  clearFloor();
+  if(!bossChallenge||$('mathOverlay').classList.contains('hidden'))problems.push('boss gate '+floor);
+  for(let seal=0;seal<3;seal++)answer(q.result);
+  if(!s.loot.includes(milestoneId()))problems.push('boss seal '+floor);
+  clearFloor();
+  if(!s.owned.includes(milestones[floor].skin)||$('winOverlay').classList.contains('hidden'))problems.push('boss reward '+floor);
+  if(floor===40){const before=s.floor;advance();if(s.floor!==before)problems.push('campaign exceeded 40')}
+  else advance();
+  $('winOverlay').classList.add('hidden');paused=false;
+ }
  // Optional Mega Cell must offer a harder circle challenge and unlock all three cells.
  s.floor=3;s.cells=0;s.loot=[];configureFloor();monsters=[];
  const mega=megaPoint();
