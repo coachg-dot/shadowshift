@@ -63,11 +63,15 @@ function interact(){if(paused||!$('mathOverlay').classList.contains('hidden'))re
 if(hiding){hiding=false;say('You stepped out of hiding. Keep moving!');return}
 for(const spot of hidingSpots){if(near(spot)){hiding=true;pressed.clear();say('🫥 Hidden! Monsters cannot spot you. Press E again to leave hiding.');return}}
 for(let i=0;i<terminals.length;i++){if(near(terminals[i])&&!s.loot.includes('floor'+s.floor+'term'+i)){activeTerminal=i;openMath();return}}for(let i=0;i<chests.length;i++){if(near(chests[i])){const id='floor'+s.floor+'chest'+i;if(!s.loot.includes(id)){s.loot.push(id);s.coins+=25;s.xp+=10;save();say('🎁 Supply cache opened! +25 coins, +10 XP.');return}else{say('You already searched this cache.');return}}}if(near(exit)){if(s.cells===3)clearFloor();else say('The exit needs all 3 power cells. Explore the glowing terminals.');return}say('Move closer to a terminal, crate, or the exit, then press E.')}
-function makeQ(){const max=s.floor===1?10:Math.min(20,10+s.floor*2),sub=Math.random()<.42;let a=Math.floor(Math.random()*(max+1)),b=Math.floor(Math.random()*(max+1));if(sub&&b>a)[a,b]=[b,a];if(!sub&&a+b>max)b=max-a;const result=sub?a-b:a+b,options=new Set([result]);let guard=0;while(options.size<4&&guard++<40){options.add(Math.max(0,result+Math.floor(Math.random()*9)-4))}for(let i=0;options.size<4;i++)options.add(result+5+i);return {a,b,sub,result,options:[...options].sort(()=>Math.random()-.5),key:a+(sub?'-':'+')+b}}
+function makeQ(){const max=s.floor===1?10:Math.min(20,10+s.floor*2),sub=Math.random()<.42;let a=Math.floor(Math.random()*(max+1)),b=Math.floor(Math.random()*(max+1));
+const review=Object.entries(s.facts).filter(([k,v])=>v.wrong>v.right&&/^[0-9]+[+-][0-9]+$/.test(k));
+if(review.length&&Math.random()<.35){const key=review[Math.floor(Math.random()*review.length)][0],match=key.match(/^(\\d+)([+-])(\\d+)$/);if(match){a=Number(match[1]);b=Number(match[3]);return createProblem(a,b,match[2]==='-',max)}}if(sub&&b>a)[a,b]=[b,a];if(!sub&&a+b>max)b=max-a;return createProblem(a,b,sub,max)}function createProblem(a,b,sub,max){const result=sub?a-b:a+b,options=new Set([result]);let guard=0;while(options.size<4&&guard++<40){options.add(Math.max(0,result+Math.floor(Math.random()*9)-4))}for(let i=0;options.size<4;i++)options.add(result+5+i);return {a,b,sub,result,options:[...options].sort(()=>Math.random()-.5),key:a+(sub?'-':'+')+b}}
 function openMath(){q=makeQ();mathTries=0;paused=true;$('mathOverlay').classList.remove('hidden');$('mathTitle').textContent='POWER CELL '+(s.cells+1);$('problem').textContent=q.a+(q.sub?' − ':' + ')+q.b+' = ?';$('mathFeedback').textContent='';$('hintText').textContent='';$('answers').innerHTML='';for(const n of q.options){const btn=document.createElement('button');btn.textContent=n;btn.onclick=()=>answer(n);$('answers').appendChild(btn)}}
 function answer(n){s.attempts++;mathTries++;const f=s.facts[q.key]||{right:0,wrong:0};if(n!==q.result){f.wrong++;s.facts[q.key]=f;save();$('mathFeedback').innerHTML='<span class="bad">Try again. You can use the strategy button. Nothing is lost.</span>';return}f.right++;s.facts[q.key]=f;s.correct++;s.cells++;s.coins+=20;s.xp+=30;s.loot.push('floor'+s.floor+'term'+activeTerminal);save();$('mathOverlay').classList.add('hidden');paused=false;say('⚡ Power restored! +20 Shadow Coins and +30 XP. '+(s.cells===3?'The exit is unlocked!':'Find the next glowing terminal.'))}
 function showHint(){s.hints++;save();$('hintText').textContent=q.sub?'Begin at '+q.a+' and count back '+q.b+' steps. A number line or fingers are fine.':'Start at '+Math.max(q.a,q.b)+' and count forward '+Math.min(q.a,q.b)+' steps. Try making ten when you can.'}
-function clearFloor(){paused=true;s.clears++;s.coins+=75;s.xp+=100;save();$('winText').textContent='You survived floor '+s.floor+'! +75 coins and +100 XP. Your skins and equipment are safe.';$('winOverlay').classList.remove('hidden')}
+function clearFloor(){paused=true;s.clears++;s.coins+=75;s.xp+=100;
+const bonus=s.floor%3===0?40:0;if(bonus)s.coins+=bonus;
+save();$('winText').textContent='You survived '+floorNames[(s.floor-1)%6]+'! +75 coins, +100 XP'+(bonus?', plus a 40-coin milestone bonus!':'.')+' Your skins and equipment are safe.';$('winOverlay').classList.remove('hidden')}
 function advance(){$('winOverlay').classList.add('hidden');s.floor++;s.cells=0;p={x:1.5,y:1.5};enemy={x:14.5,y:9.5,dir:1};configureFloor();spawnMonsters();hiding=false;save();paused=false;say('NEW AREA: '+floorNames[(s.floor-1)%6]+'! Explore a different layout, find supply caches, and restore 3 cells.')}
 function renderShop(){$('shopGrid').innerHTML='';for(const i of shopItems){const owned=s.owned.includes(i.id),div=document.createElement('div');div.className='item';div.innerHTML='<div class="preview">'+i.icon+'</div><h3>'+i.name+'</h3><p class="muted">'+i.rarity+' • '+i.cost+' 🪙</p>';const b=document.createElement('button');b.textContent=owned?'OWNED':'BUY';b.disabled=owned||s.coins<i.cost;b.onclick=()=>{s.coins-=i.cost;s.owned.push(i.id);if(i.color)s.skin=i.id;save();renderShop();say('Unlocked '+i.name+'!')};div.appendChild(b);$('shopGrid').appendChild(div)}}
 function renderLocker(){const selected=shopItems.find(i=>i.id===s.skin);$('skinPreview').textContent=selected?.icon||'🧑‍🚀';$('lockerGrid').innerHTML='';for(const i of [{id:'rookie',name:'Rookie Explorer',icon:'🧑‍🚀',color:'#70b7fa'},...shopItems.filter(x=>x.color)]){const owned=i.id==='rookie'||s.owned.includes(i.id),div=document.createElement('div');div.className='item';div.innerHTML='<div class="preview">'+i.icon+'</div><b>'+i.name+'</b><p class="muted">'+(owned?'Unlocked':'Locked')+'</p>';const b=document.createElement('button');b.textContent=s.skin===i.id?'EQUIPPED':'EQUIP';b.disabled=!owned||s.skin===i.id;b.onclick=()=>{s.skin=i.id;save();renderLocker()};div.appendChild(b);$('lockerGrid').appendChild(div)}}
@@ -84,7 +88,7 @@ const monsterTypes=[
 function spawnMonsters(){
 monsters=monsterTypes.slice(0,s.floor===1?3:Math.min(3,1+Math.floor(s.floor/2))).map((m,i)=>({
 ...m,x:m.spawn[0],y:m.spawn[1],homeX:m.spawn[0],homeY:m.spawn[1],
-target:null,route:[],repath:0,phase:i*2.7,alert:false,wait:0
+target:null,route:[],repath:0,phase:i*2.7,alert:false,wait:0,investigate:0,lastSeen:null
 }));
 }
 function traversable(x,y){return tile(x+.5,y+.5)!=='#'}
@@ -119,8 +123,14 @@ for(const m of monsters){
 const distance=Math.hypot(p.x-m.x,p.y-m.y);
 const protectedArea=hiding||Math.hypot(p.x-(safe.x+.5),p.y-(safe.y+.5))<1.2;
 const chase=!protectedArea&&distance<m.range&&(m.kind!=='ambusher'||distance<2.9||m.alert);
-if(chase){m.alert=true;m.target={x:p.x,y:p.y};m.repath-=dt;if(m.repath<=0){m.route=findPath(m.x,m.y,p.x,p.y);m.repath=.30}}
-else{
+if(chase){
+m.alert=true;m.investigate=3.5;m.lastSeen={x:p.x,y:p.y};m.target=m.lastSeen;
+m.repath-=dt;if(m.repath<=0){m.route=findPath(m.x,m.y,p.x,p.y);m.repath=.32}
+}else if(m.investigate>0&&m.lastSeen){
+m.alert=false;m.investigate-=dt;m.target=m.lastSeen;m.repath-=dt;
+if(m.repath<=0||!m.route.length){m.route=findPath(m.x,m.y,m.lastSeen.x,m.lastSeen.y);m.repath=.8}
+if(Math.hypot(m.x-m.lastSeen.x,m.y-m.lastSeen.y)<.45){m.investigate=0;m.lastSeen=null;m.target=null;m.route=[]}
+}else{
 m.alert=false;m.repath-=dt;
 if(!m.target||Math.hypot(m.x-m.target.x,m.y-m.target.y)<.4||m.repath<=0){
 m.target=m.kind==='ambusher'&&Math.random()<.65?{x:m.homeX,y:m.homeY}:randomDestination(m);
@@ -134,7 +144,7 @@ else{const step=Math.min(d,m.speed*(m.alert?1.28:.72)*dt);const nx=m.x+dx/d*step
 }
 if(Math.hypot(p.x-m.x,p.y-m.y)<.66&&hitCooldown<=0&&!protectedArea){
 p={x:1.5,y:1.5};hitCooldown=3;
-for(const other of monsters){other.alert=false;other.target=null;other.route=[];other.repath=0}
+for(const other of monsters){other.alert=false;other.target=null;other.route=[];other.repath=0;other.investigate=0;other.lastSeen=null}
 hiding=false;say('👁️ A '+m.kind+' caught you! Back to the entrance. No coins, power cells, or upgrades lost.');
 break;
 }
@@ -145,7 +155,7 @@ for(const m of monsters){
 const x=m.x*T,y=m.y*T;
 const bob=Math.sin(tick*5+m.phase)*2.5;
 ctx.save();ctx.translate(0,bob);
-ctx.fillStyle=m.alert?'#e9a1bb55':'#00000055';
+ctx.fillStyle=m.alert?'#e9a1bb55':m.investigate>0?'#ffca6b33':'#00000055';
 ctx.beginPath();ctx.arc(x,y,m.alert?22:18,0,Math.PI*2);ctx.fill();
 ctx.fillStyle=m.color;ctx.beginPath();
 if(m.kind==='ambusher'){ctx.moveTo(x,y-17);ctx.lineTo(x+16,y+13);ctx.lineTo(x-16,y+13)}
@@ -154,7 +164,7 @@ else{ctx.arc(x,y,15,0,Math.PI*2)}
 ctx.fill();
 ctx.fillStyle='#fff';ctx.fillRect(x-9,y-5,6,6);ctx.fillRect(x+3,y-5,6,6);
 ctx.fillStyle='#11182c';ctx.fillRect(x-7,y-3,3,3);ctx.fillRect(x+5,y-3,3,3);
-if(m.alert){ctx.fillStyle='#ffe6a1';ctx.font='bold 17px system-ui';ctx.textAlign='center';ctx.fillText('!',x,y-23);ctx.textAlign='left'}
+if(m.alert||m.investigate>0){ctx.fillStyle=m.alert?'#ffe6a1':'#ffcc7d';ctx.font='bold 17px system-ui';ctx.textAlign='center';ctx.fillText(m.alert?'!':'?',x,y-23);ctx.textAlign='left'}
 ctx.restore();
 }
 }
