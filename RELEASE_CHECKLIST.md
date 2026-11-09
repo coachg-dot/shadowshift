@@ -6,13 +6,15 @@ This document separates automated checks from testing that requires a physical d
 
 - [ ] The latest **Shadowshift smoke tests** workflow on `main` is green.
 - [ ] Node smoke test passes for 18 floors, navigation routes, monsters, rewards, seasonal challenges, and corrupted saves.
-- [ ] Headless Chromium tests pass at 1280×800 desktop and 390×844 mobile emulation.
+- [ ] Headless Chromium tests pass at 1280×800 desktop and 390×844 / 320×700 mobile emulation.
+- [ ] WebKit (Safari engine) browser tests pass at 390×844 and 320×700 iPhone-sized viewports.
+- [ ] Save/reload and new-tab tests preserve Floor 2, rewards, and backup recovery.
 - [ ] Download the `shadowshift-browser-screenshots` artifact and inspect both screen sizes.
 - [ ] No browser page errors or failed assertions.
 
 GitHub Actions: https://github.com/coachg-dot/shadowshift/actions
 
-## Physical phone (Android or iPhone)
+## Physical iPhone Safari (primary release target)
 
 Open https://coachg-dot.github.io/shadowshift/ in a normal browser (not private mode).
 
@@ -23,7 +25,14 @@ Open https://coachg-dot.github.io/shadowshift/ in a normal browser (not private 
 - [ ] Opening the math question or Safe Room freezes monster movement.
 - [ ] Completing all three terminals unlocks the exit.
 - [ ] Finishing the floor advances to Floor 2.
-- [ ] Closing and reopening the browser preserves coins, skins, and floor progress.
+- [ ] Closing and reopening Safari preserves coins, skins, and floor progress; visible indicator reads `✓ Saved • Floor 2`.
+- [ ] Lock iPhone / switch apps, return to Safari, and verify Floor 2 remains saved.
+- [ ] Export a backup from Progress and verify it downloads to the iPhone Files app.
+- [ ] Floor 10 boss splash and boss encounter display correctly (previously player-tested; reward still to verify).
+- [ ] Floor 10 boss awards bonus coins and the Sentinel Slayer skin.
+- [ ] Floor 20 Professor Plus-a-Saurus reveal, three math seals, and reward.
+- [ ] Floor 30 Multiplying Munchosaur reveal, three math seals, and reward.
+- [ ] Floor 40 Great Calculord reveal, hardest questions, champion ending, and saved ending after reopening.
 - [ ] Effects LOW mode remains selected after reopening and is smoother on slower phones.
 - [ ] Shop, Locker, and Progress open and return to the game.
 - [ ] Try portrait and landscape; report clipped or unreachable controls.
@@ -38,4 +47,5 @@ Open https://coachg-dot.github.io/shadowshift/ in a normal browser (not private 
 
 - Progress is stored in each browser's local storage; it does **not** automatically sync between phone and Chromebook.
 - Clearing browser/site data or using private browsing may remove progress.
-- Phone emulation in Chromium is not a substitute for testing on a physical device.
+- WebKit and Chromium emulation do not substitute for testing on a physical iPhone.
+- A prior Chrome session restarted at Floor 1; do not close the save issue until iPhone Safari retention is explicitly confirmed.
