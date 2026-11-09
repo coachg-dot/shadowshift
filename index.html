@@ -66,7 +66,7 @@ function missionPoint(){return sideMissions[(s.floor-1)%6]}
 function missionId(){return 'floor'+s.floor+'secret'}
 function missionDone(){return s.loot.includes(missionId())}
 const tile=(x,y)=>walls[Math.floor(y)]?.[Math.floor(x)]||'#';const solid=(x,y)=>tile(x-.22,y-.22)==='#'||tile(x+.22,y-.22)==='#'||tile(x-.22,y+.22)==='#'||tile(x+.22,y+.22)==='#';
-function save(){localStorage.setItem('shadowshift_survival_v1',JSON.stringify(s));hud()}
+function save(){try{localStorage.setItem('shadowshift_survival_v1',JSON.stringify(s))}catch(e){if(!saveWarningShown){saveWarningShown=true;say('Storage is unavailable. Progress may not survive closing this browser.')}}hud()}let saveWarningShown=false;
 function hud(){$('coins').textContent=s.coins;$('xp').textContent=s.xp;$('floor').textContent=s.floor;$('keys').textContent=s.cells;$('objective').textContent=s.cells<3?'Restore '+(3-s.cells)+' power cells':'Reach the green exit';$('missionBar').style.width=(s.cells/3*100)+'%';$('missionList').innerHTML='<div class="mission '+(s.cells>=1?'done':'')+'">⚡ Restore power cells: '+s.cells+'/3</div><div class="mission '+(s.loot.includes('floor'+s.floor+'chest0')?'done':'')+'">🎁 Search supply crates for bonus coins</div><div class="mission '+(s.cells===3?'done':'')+'">🚪 Escape through the exit</div>';$('loadout').innerHTML='🎭 '+(shopItems.find(i=>i.id===s.skin)?.name||'Rookie Explorer')+'<br>🔦 '+(s.owned.includes('lamp')?'Longbeam':'Basic flashlight')+'<br>👟 '+(s.owned.includes('boots')?'Swift Boots':'Standard boots')+'<br>🤖 '+(s.owned.includes('bot')?'Shadow Companion':'No companion')}
 let toastText='',toastTime=0;function say(t){$('msg').textContent=t;toastText=t.replace(/[🎁📡⚡👁️🏆]/gu,'').trim();toastTime=4.2}
 function drawToast(){if(toastTime<=0||!toastText)return;const msg=toastText.length>61?toastText.slice(0,58)+'…':toastText;ctx.save();ctx.globalAlpha=Math.min(1,toastTime*2);ctx.fillStyle='#101b39e8';ctx.strokeStyle='#83c6ff88';ctx.lineWidth=1.5;ctx.beginPath();ctx.roundRect(115,428,490,37,9);ctx.fill();ctx.stroke();ctx.fillStyle='#f4edff';ctx.textAlign='center';ctx.font='bold 13px system-ui';ctx.fillText(msg,360,451,470);ctx.restore()}function view(name){for(const n of ['game','shop','locker','progress']){$(n).classList.toggle('hidden',n!==name);$('nav-'+n).classList.toggle('active',n===name)}if(name==='shop')renderShop();if(name==='locker')renderLocker();if(name==='progress')renderProgress();paused=name!=='game'}
@@ -101,12 +101,8 @@ const monsterTypes=[
 {kind:'wanderer',color:'#73e5ec',spawn:[9.5,3.5],speed:.93,range:3.4},
 {kind:'ambusher',color:'#f3aa57',spawn:[14.5,5.5],speed:1.36,range:2.9}
 ];
-function spawnMonsters(){
-monsters=monsterTypes.slice(0,s.floor===1?3:Math.min(3,1+Math.floor(s.floor/2))).map((m,i)=>({
-...m,x:m.spawn[0],y:m.spawn[1],homeX:m.spawn[0],homeY:m.spawn[1],
-target:null,route:[],repath:0,phase:i*2.7,alert:false,wait:0,investigate:0,lastSeen:null
-}));
-}
+function spawnMonsters(){const count=s.floor===1?4:Math.min(5,3+Math.floor(s.floor/3));monsters=[];for(let i=0;i<count;i++){const type=monsterTypes[i%monsterTypes.length],preferred=i<3?{x:type.spawn[0],y:type.spawn[1]}:{x:13.5-(i%2)*5,y:2.5+(i%3)*3};let position=preferred;if(!traversable(Math.floor(position.x),Math.floor(position.y))||Math.hypot(position.x-1.5,position.y-1.5)<3){const choices=[];for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++)if(traversable(x,y)&&Math.hypot(x+.5-1.5,y+.5-1.5)>4&&Math.hypot(x+.5-safe.x-.5,y+.5-safe.y-.5)>2)choices.push({x:x+.5,y:y+.5});position=choices[(i*19+s.floor*7)%choices.length]||{x:12.5,y:8.5}}monsters.push({...type,x:position.x,y:position.y,homeX:position.x,homeY:position.y,target:null,route:[],repath:0,phase:i*2.7,alert:false,wait:0,investigate:0,lastSeen:null})}}
+
 function traversable(x,y){return tile(x+.5,y+.5)!=='#'}
 function findPath(fromX,fromY,toX,toY){
 const sx=Math.floor(fromX),sy=Math.floor(fromY),gx=Math.floor(toX),gy=Math.floor(toY);
@@ -201,7 +197,7 @@ ctx.restore();
 }
 }
 
-function update(dt){if(paused)return;let dx=Number(pressed.has('right'))-Number(pressed.has('left')),dy=Number(pressed.has('down'))-Number(pressed.has('up'));if(dx||dy){lastDirection=Math.abs(dx)>Math.abs(dy)?dx>0?'right':'left':dy>0?'down':'up';walkPhase+=dt*11}if(dx||dy){if(hiding){hiding=false;say('You left hiding and started moving.')}const d=Math.hypot(dx,dy);move(dx/d,dy/d,dt)}tick+=dt;toastTime=Math.max(0,toastTime-dt);updateMonsters(dt);screenPulse=Math.max(0,screenPulse-dt);for(const part of particles){part.x+=part.vx*dt;part.y+=part.vy*dt;part.life-=dt;part.vx*=.97;part.vy*=.97}particles=particles.filter(part=>part.life>0);if(hitCooldown>0)hitCooldown-=dt; }
+function update(dt){if(paused||document.hidden)return;let dx=Number(pressed.has('right'))-Number(pressed.has('left')),dy=Number(pressed.has('down'))-Number(pressed.has('up'));if(dx||dy){lastDirection=Math.abs(dx)>Math.abs(dy)?dx>0?'right':'left':dy>0?'down':'up';walkPhase+=dt*11}if(dx||dy){if(hiding){hiding=false;say('You left hiding and started moving.')}const d=Math.hypot(dx,dy);move(dx/d,dy/d,dt)}tick+=dt;toastTime=Math.max(0,toastTime-dt);updateMonsters(dt);screenPulse=Math.max(0,screenPulse-dt);for(const part of particles){part.x+=part.vx*dt;part.y+=part.vy*dt;part.life-=dt;part.vx*=.97;part.vy*=.97}particles=particles.filter(part=>part.life>0);if(hitCooldown>0)hitCooldown-=dt; }
 function drawEnvironment(){const variant=(s.floor-1)%6;for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++){if(walls[y][x]==='#')continue;const px=x*T,py=y*T,seed=(x*41+y*73+variant*109)%101;
 if(seed<7){ctx.fillStyle='#00000035';ctx.beginPath();ctx.ellipse(px+22,py+25,12,5,0,0,Math.PI*2);ctx.fill();ctx.fillStyle=variant===1?'#3c8f9a70':variant===4?'#db704855':'#7b8b9a45';ctx.fillRect(px+12,py+23,17,2)}
 if(seed>91){ctx.strokeStyle='#b9c8e024';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(px+8,py+10);ctx.lineTo(px+21,py+14);ctx.lineTo(px+27,py+9);ctx.stroke()}
