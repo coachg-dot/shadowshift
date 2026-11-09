@@ -56,8 +56,15 @@ fs.mkdirSync('test-results',{recursive:true});
    }
    await page.evaluate(()=>{p={x:exit.x+.5,y:exit.y+.5};interact();});
    assert.equal(await page.locator('#winOverlay').isVisible(),true);
-   await page.locator('#winOverlay button').click();
-   assert.equal(await page.locator('#floor').innerText(),'2');
+   const rewardCoins=await page.locator('#coins').innerText();
+   if(viewport.width<600){
+    await page.reload({waitUntil:'load'});
+    assert.equal(await page.locator('#floor').innerText(),'2','Reloading on win must resume at next floor');
+    assert.equal(await page.locator('#coins').innerText(),rewardCoins,'Reload must not duplicate rewards');
+   }else{
+    await page.locator('#winOverlay button').click();
+    assert.equal(await page.locator('#floor').innerText(),'2');
+   }
    await page.reload({waitUntil:'load'});
    assert.equal(await page.locator('#floor').innerText(),'2');
    await page.screenshot({path:'test-results/shadowshift-'+viewport.width+'-floor2.png',fullPage:true});
