@@ -82,6 +82,17 @@ function run(width,height){
  if(advanced!==2||s.floor!==2||s.cells!==0)problems.push('floor advance repeated');
  // Confirm progress was persisted and can be parsed.
  if(!JSON.parse(localStorage.getItem('shadowshift_survival_v1')).floor)problems.push('save missing');
+ // Campaign guidance, visible boss hazard, and modal isolation.
+ s.floor=10;s.cells=0;s.loot=[];configureFloor();paused=false;
+ const megaGoal=megaPoint();p={x:megaGoal.x+.5,y:megaGoal.y+.5};
+ const goal=nextObjective();
+ if(!goal||!['CELL','MEGA'].includes(goal.name))problems.push('objective navigation');
+ p={x:9.5,y:5.5};hitCooldown=0;hiding=false;bossGuardianPulse();
+ if(Math.hypot(p.x-1.5,p.y-1.5)>.01)problems.push('guardian danger zone');
+ $('winOverlay').classList.remove('hidden');
+ startPractice('circles');
+ if(practiceChallenge)problems.push('practice opened over victory');
+ $('winOverlay').classList.add('hidden');
  // Four mandatory boss milestones, distinct skins, and a 40-floor campaign cap.
  for(const floor of [10,20,30,40]){
   s.floor=floor;s.cells=3;s.loot=[];paused=false;configureFloor();spawnMonsters();
