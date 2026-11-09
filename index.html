@@ -66,7 +66,8 @@ const sideMissions=[{x:9,y:7},{x:13,y:9},{x:4,y:7},{x:8,y:8},{x:6,y:9},{x:14,y:7
 const missionNames=['LOST RADIO','TUNNEL MAP','LAB JOURNAL','PRISON KEYCARD','REACTOR BLUEPRINT','NIGHT WARD RECORD'];
 function missionPoint(){return sideMissions[(s.floor-1)%6]}
 function megaId(){return 'floor'+s.floor+'mega'}
-function megaPoint(){const used=[...terminals,...chests,...hidingSpots,exit,safe,missionPoint()];for(const [x,y] of [[9,2],[6,9],[12,7],[3,5],[10,9],[14,5],[7,3],[8,8],[3,9],[13,3]])if(walls[y]?.[x]==='.'&&!used.some(a=>a.x===x&&a.y===y)&&findPath(1.5,1.5,x+.5,y+.5).length)return {x,y};return {x:2,y:2}}
+let megaCacheFloor=0,megaCachePoint=null;
+function megaPoint(){if(megaCacheFloor===s.floor&&megaCachePoint)return megaCachePoint;const used=[...terminals,...chests,...hidingSpots,exit,safe,missionPoint()];for(const [x,y] of [[9,2],[6,9],[12,7],[3,5],[10,9],[14,5],[7,3],[8,8],[3,9],[13,3]])if(walls[y]?.[x]==='.'&&!used.some(a=>a.x===x&&a.y===y)&&findPath(1.5,1.5,x+.5,y+.5).length){megaCacheFloor=s.floor;return megaCachePoint={x,y}}megaCacheFloor=s.floor;return megaCachePoint={x:2,y:2}}
 function missionId(){return 'floor'+s.floor+'secret'}
 function missionDone(){return s.loot.includes(missionId())}
 const tile=(x,y)=>walls[Math.floor(y)]?.[Math.floor(x)]||'#';const solid=(x,y)=>tile(x-.22,y-.22)==='#'||tile(x+.22,y-.22)==='#'||tile(x-.22,y+.22)==='#'||tile(x+.22,y+.22)==='#';
