@@ -68,6 +68,10 @@ function run(width,height){
  const cleared=s.clears,clearCoins=s.coins;
  clearFloor();
  if(s.clears!==cleared+1||s.coins!==clearCoins+75)problems.push('floor reward missing');
+ const savedAfterWin=JSON.parse(localStorage.getItem('shadowshift_survival_v1'));
+ if(savedAfterWin.lastRewardedFloor!==1)problems.push('floor reward marker missing');
+ const recovered=restoreProgress(savedAfterWin);
+ if(recovered.lastRewardedFloor!==1)problems.push('floor reward marker lost on reload');
  const paid=s.coins;clearFloor();
  if(s.coins!==paid||s.clears!==cleared+1)problems.push('duplicate floor reward');
  advance();const advanced=s.floor;advance();
