@@ -28,6 +28,8 @@ function run(width,height){
   const restored=vm.runInContext('restoreProgress(JSON.parse(localStorage.getItem("shadowshift_survival_v1")))',sandbox);
   assert.ok(restored.floor>=1&&Number.isFinite(restored.coins)&&Array.isArray(restored.owned));
  }
+ const inconsistent=vm.runInContext('restoreProgress({floor:4,cells:3,loot:["floor4term0","floor4term2"]})',sandbox);
+ assert.equal(inconsistent.cells,2,'Recovered cell count must match restored terminals');
  storage.delete('shadowshift_survival_v1');
  const checks=`
  let problems=[];
