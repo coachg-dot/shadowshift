@@ -51,6 +51,16 @@ function run(width,height){
  if(s.coins!==before||s.cells!==0)problems.push('wrong answer reward');
  answer(q.result);const after=s.coins;answer(q.result);
  if(s.coins!==after||s.cells!==1)problems.push('duplicate answer reward');
+ // Game simulation must freeze behind math puzzles and menus.
+ const frozenTick=tick;
+ paused=false;
+ update(.25);
+ if(tick!==frozenTick)problems.push('simulation advanced under math overlay');
+ $('mathOverlay').classList.add('hidden');
+ view('shop');const menuTick=tick;
+ update(.25);
+ if(tick!==menuTick)problems.push('simulation advanced in shop');
+ view('game');
  // A floor can be rewarded once, even after repeated interaction.
  s.cells=3;paused=false;
  const cleared=s.clears,clearCoins=s.coins;
