@@ -115,6 +115,11 @@ function run(width,height){
  else {
   answer(q.options.find(n=>n!==q.result));
   if(s.cells!==0)problems.push('wrong Mega Cell answer rewarded');
+  if($('megaTryAgain').classList.contains('hidden'))problems.push('Mega retry unavailable');
+  const beforeExit=[s.coins,s.xp,s.cells];exitMega();
+  if(megaChallenge||!$('mathOverlay').classList.contains('hidden'))problems.push('Mega exit blocked');
+  if(JSON.stringify(beforeExit)!==JSON.stringify([s.coins,s.xp,s.cells]))problems.push('Mega exit penalty');
+  paused=false;openMega();if(!megaChallenge)problems.push('Mega cannot reopen');
   answer(q.result);
   if(s.cells!==3||!s.loot.includes('floor3mega'))problems.push('Mega Cell did not unlock exit');
   const reward=s.coins;answer(q.result);
