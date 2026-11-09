@@ -74,6 +74,18 @@ fs.mkdirSync('test-results',{recursive:true});
    assert.equal(await page.locator('#keys').innerText(),'1');
    await page.reload({waitUntil:'load'});
    assert.equal(await page.locator('#keys').innerText(),'1');
+   assert.match(await page.locator('#saveStatusTop').innerText(),/Saved.*Floor 1/,'Save status should be visible');
+   // Reopen in a new tab within the same browser context: this catches storage isolation.
+   const reopened=await page.context().newPage();
+   try{
+    await reopened.goto('http://127.0.0.1:8765/',{waitUntil:'load'});
+    assert.equal(await reopened.locator('#keys').innerText(),'1','New tab must restore the same power-cell save');
+    assert.equal(await reopened.locator('#floor').innerText(),'1','New tab must restore the saved floor');
+   }finally{await reopened.close()}
+   // A damaged primary save must fall back to the secondary copy after reload.
+   await page.evaluate(()=>localStorage.setItem('shadowshift_survival_v1','{damaged'));
+   await page.reload({waitUntil:'load'});
+   assert.equal(await page.locator('#keys').innerText(),'1','Backup must recover a corrupted primary save');
    // Complete a floor through its three terminals and the exit.
    await page.evaluate(()=>{monsters=[];});
    for(let i=1;i<3;i++){
