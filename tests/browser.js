@@ -46,6 +46,20 @@ fs.mkdirSync('test-results',{recursive:true});
    assert.equal(await page.locator('#keys').innerText(),'1');
    await page.reload({waitUntil:'load'});
    assert.equal(await page.locator('#keys').innerText(),'1');
+   // Complete a floor through its three terminals and the exit.
+   await page.evaluate(()=>{monsters=[];});
+   for(let i=1;i<3;i++){
+    await page.evaluate(i=>{p={x:terminals[i].x+.5,y:terminals[i].y+.5};interact();},i);
+    assert.equal(await page.locator('#mathOverlay').isVisible(),true);
+    await page.evaluate(()=>answer(q.result));
+    assert.equal(await page.locator('#keys').innerText(),String(i+1));
+   }
+   await page.evaluate(()=>{p={x:exit.x+.5,y:exit.y+.5};interact();});
+   assert.equal(await page.locator('#winOverlay').isVisible(),true);
+   await page.locator('#winOverlay button').click();
+   assert.equal(await page.locator('#floor').innerText(),'2');
+   await page.reload({waitUntil:'load'});
+   assert.equal(await page.locator('#floor').innerText(),'2');
    await page.locator('#effectsToggle').click();
    assert.match(await page.locator('#effectsToggle').innerText(),/LOW/);
    await page.reload({waitUntil:'load'});
