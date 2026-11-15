@@ -32,7 +32,7 @@ function run(width,height){
  // Adversarial crossover unlock and companion warning checks: no unearned ownership,
  // no duplicate purchase, persistent costume selection, no warning without gear.
  const crossoverChecks=vm.runInContext(`(()=>{
-   const unique=new Set(crossoverMonsters.map(m=>m.id)).size===12;
+   const unique=new Set(crossoverMonsters.map(m=>m.id)).size===13&&crossoverMonsters.some(m=>m.id==='lemonpepperstepper'&&m.kind==='lemoncat'&&m.color==='#8dff2e');
    const costs=crossoverMonsters.every(m=>m.cost>0&&m.kind&&m.color)&&crossoverMonsters.filter(m=>m.theme==='K-pop demon-hunting fantasy').length===4;
    const original=s.owned.slice();s.owned=[];s.monsterSkin=null;
    monsters=[{x:p.x+.5,y:p.y+.5}];companionWarningCooldown=0;
