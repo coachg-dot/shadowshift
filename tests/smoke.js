@@ -144,6 +144,15 @@ function run(width,height){
   else {advance();if(!$('bossIntroOverlay').classList.contains('hidden'))dismissBossIntro()}
   $('winOverlay').classList.add('hidden');paused=false;
  }
+ // Calculator adversarial tests: arithmetic, decimals, division by zero, and Mega-only visibility.
+ const calculatorChecks=vm.runInContext(`(()=>{
+  showMegaCalculator(true);calcKey('7');calcKey('×');calcKey('8');calcKey('=');const multiply=$('calcDisplay').textContent==='56';
+  calcKey('C');calcKey('9');calcKey('÷');calcKey('2');calcKey('=');const decimal=$('calcDisplay').textContent==='4.5';
+  calcKey('C');calcKey('5');calcKey('÷');calcKey('0');calcKey('=');const zero=$('calcDisplay').textContent==='Error';
+  showMegaCalculator(false);const hidden=$('megaCalculator').classList.contains('hidden');
+  return {multiply,decimal,zero,hidden};
+ })()`,sandbox);
+ assert.deepEqual(JSON.parse(JSON.stringify(calculatorChecks)),{multiply:true,decimal:true,zero:true,hidden:true},'Mega calculator arithmetic and visibility');
  // Optional Mega Cell must offer a harder circle challenge and unlock all three cells.
  s.floor=3;s.cells=0;s.loot=[];configureFloor();monsters=[];
  const mega=megaPoint();
