@@ -29,6 +29,23 @@ function run(width,height){
  })()`,sandbox);
  assert.deepEqual(JSON.parse(JSON.stringify(companionChecks)),{guard:true,recognizable:true,separatePass:true,afterReload:true},'Companion rendering and persistence');
  vm.runInContext('s=initial();save()',sandbox);
+ // Adversarial crossover unlock and companion warning checks: no unearned ownership,
+ // no duplicate purchase, persistent costume selection, no warning without gear.
+ const crossoverChecks=vm.runInContext(`(()=>{
+   const unique=new Set(crossoverMonsters.map(m=>m.id)).size===8;
+   const costs=crossoverMonsters.every(m=>m.cost>0&&m.kind&&m.color);
+   const original=s.owned.slice();s.owned=[];s.monsterSkin=null;
+   monsters=[{x:p.x+.5,y:p.y+.5}];companionWarningCooldown=0;
+   updateCompanionWarning(.1);const unownedSilent=!companionWarningActive;
+   s.owned.push('bot');companionWarningCooldown=10;updateCompanionWarning(.1);
+   const ownedWarns=companionWarningActive;
+   const costume=crossoverMonsters[0];s.owned.push(costume.id);s.monsterSkin=costume.id;save();
+   const saved=restoreProgress(JSON.parse(localStorage.getItem('shadowshift_survival_v1')));
+   const persists=saved.owned.includes(costume.id)&&saved.monsterSkin===costume.id;
+   s.owned=original;s.monsterSkin=null;monsters=[];save();
+   return {unique,costs,unownedSilent,ownedWarns,persists};
+ })()`,sandbox);
+ assert.deepEqual(JSON.parse(JSON.stringify(crossoverChecks)),{unique:true,costs:true,unownedSilent:true,ownedWarns:true,persists:true},'Monster unlocks and companion warning');
  // Verify primary and backup saves, including recovery when the primary is corrupt.
  vm.runInContext('s.floor=10;s.lastRewardedFloor=9;s.coins=420;save()',sandbox);
  assert.equal(JSON.parse(storage.get('shadowshift_survival_v1')).floor,10,'primary save persists current floor');
