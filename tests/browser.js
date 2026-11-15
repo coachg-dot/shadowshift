@@ -22,6 +22,18 @@ fs.mkdirSync('test-results',{recursive:true});
    else await page.keyboard.press('Enter');
    assert.equal(await page.locator('#startSplash').isVisible(),false,'Any key or touch starts game');
    await page.waitForTimeout(150);
+   // Pixel-level adversarial test: a purchased companion must visibly change the
+   // game canvas, not merely appear in the loadout text or an invisible draw call.
+   const companionPixels=await page.evaluate(()=>{
+    const original=[...s.owned],oldTick=tick;monsters=[];tick=0;
+    s.owned=s.owned.filter(id=>id!=='bot');draw();
+    const before=ctx.getImageData(70,32,65,80).data;
+    s.owned.push('bot');draw();
+    const after=ctx.getImageData(70,32,65,80).data;
+    let changed=0;for(let i=0;i<before.length;i+=4)if(before[i]!==after[i]||before[i+1]!==after[i+1]||before[i+2]!==after[i+2])changed++;
+    s.owned=original;tick=oldTick;draw();return changed;
+   });
+   assert.ok(companionPixels>150,'Shadow Companion must visibly change at least 150 pixels, got '+companionPixels);
    const overflow=await page.evaluate(()=>({document:document.documentElement.scrollWidth,viewport:window.innerWidth}));
    assert.ok(overflow.document<=overflow.viewport+2,'Horizontal overflow at '+viewport.width+'px: '+JSON.stringify(overflow));
    assert.equal(await page.locator('#floor').innerText(),'1');
