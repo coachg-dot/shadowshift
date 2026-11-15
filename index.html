@@ -25,7 +25,11 @@ const crossoverMonsters=[
 {id:'starcrew',name:'Starship Crewmate',theme:'Space mystery',cost:260,color:'#e95d5d',icon:'🚀',kind:'crew'},
 {id:'voidimpostor',name:'Void Impostor',theme:'Space mystery',cost:420,color:'#8d64df',icon:'🛸',kind:'impostor'},
 {id:'blockcrawler',name:'Block Crawler',theme:'Block-building adventure',cost:300,color:'#73bb73',icon:'🟩',kind:'block'},
-{id:'endervoid',name:'Ender Shade',theme:'Block-building adventure',cost:450,color:'#b17eff',icon:'🟪',kind:'ender'}
+{id:'endervoid',name:'Ender Shade',theme:'Block-building adventure',cost:450,color:'#b17eff',icon:'🟪',kind:'ender'},
+{id:'moonidol',name:'Moonlight Idol',theme:'K-pop demon-hunting fantasy',cost:340,color:'#ff77c9',icon:'🎤',kind:'idol'},
+{id:'spiritdancer',name:'Spirit Dancer',theme:'K-pop demon-hunting fantasy',cost:400,color:'#67d9ff',icon:'✨',kind:'dancer'},
+{id:'neononi',name:'Neon Mask Demon',theme:'K-pop demon-hunting fantasy',cost:460,color:'#ff6e9d',icon:'👹',kind:'oni'},
+{id:'shadowencore',name:'Shadow Encore',theme:'K-pop demon-hunting fantasy',cost:520,color:'#b18cff',icon:'🎶',kind:'encore'}
 ];
 const masteryRelics=[{id:'orbit',name:'Orbit Phantom',color:'#61e7ff',icon:'🪐',goal:3,topic:'circles'},{id:'cipher',name:'Cipher Wraith',color:'#ff78cb',icon:'🔮',goal:4,topic:'algebra'},{id:'piwarden',name:'Pi Warden',color:'#ffe46c',icon:'⭕',goal:8,topic:'circles'}];
 const holidays=[{id:'turkey',name:'Gobblegeist',label:'Thanksgiving Turkey Monster',icon:'🦃',color:'#d8944c',goal:10,month:10},{id:'santa',name:'Santa Shadow',label:'Christmas Santa Monster',icon:'🎅',color:'#d94b60',goal:20,month:11}];
@@ -204,6 +208,14 @@ function drawMonsterDetails(m,x,y,festive){ctx.save();if(festive){if(festive.id=
 function drawCrossoverMonster(m,skin){const x=m.x*T,y=m.y*T,bob=Math.sin(tick*5+m.phase)*2;ctx.save();ctx.translate(x,y+bob);ctx.shadowColor=skin.color;ctx.shadowBlur=m.alert?17:8;ctx.fillStyle=skin.color;const k=skin.kind;
 if(k==='bear'||k==='rabbit'){ctx.beginPath();ctx.roundRect(-15,-16,30,34,8);ctx.fill();if(k==='bear'){for(const d of [-12,12]){ctx.beginPath();ctx.arc(d,-18,7,0,Math.PI*2);ctx.fill()}}else{ctx.fillRect(-12,-38,9,25);ctx.fillRect(4,-38,9,25)}ctx.fillStyle='#302336';ctx.fillRect(-12,-9,24,15);ctx.fillStyle='#ffe5a0';ctx.fillRect(-9,-5,6,5);ctx.fillRect(3,-5,6,5);ctx.fillStyle='#f2b9a4';ctx.fillRect(-3,6,6,4)}
 else if(k==='glitch'||k==='wander'){ctx.beginPath();ctx.roundRect(-13,-24,26,42,5);ctx.fill();ctx.fillStyle='#111527';ctx.fillRect(-10,-17,20,18);ctx.fillStyle='#baffff';ctx.fillRect(-8,-10,6,4);ctx.fillRect(3,-10,6,4);if(k==='glitch'){ctx.fillStyle='#73fff4';ctx.fillRect(-22,-14,8,4);ctx.fillRect(15,6,9,4);ctx.fillRect(-17,16,7,3)}else{ctx.fillStyle='#19142b';ctx.fillRect(-17,10,34,7)}}
+else if(k==='idol'||k==='dancer'||k==='oni'||k==='encore'){
+ ctx.fillStyle=k==='oni'?'#2b1737':'#191d3c';ctx.beginPath();ctx.roundRect(-14,-18,28,36,7);ctx.fill();
+ ctx.fillStyle=skin.color;ctx.fillRect(-14,2,28,5);ctx.fillRect(-11,15,8,9);ctx.fillRect(3,15,8,9);
+ ctx.fillStyle=k==='oni'?'#f7d8f6':'#ffdfc9';ctx.beginPath();ctx.arc(0,-20,12,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle=k==='oni'?'#38172b':'#282038';ctx.beginPath();ctx.arc(0,-25,13,Math.PI,Math.PI*2);ctx.fill();
+ if(k==='oni'){ctx.fillStyle=skin.color;ctx.beginPath();ctx.moveTo(-11,-30);ctx.lineTo(-17,-43);ctx.lineTo(-2,-34);ctx.moveTo(11,-30);ctx.lineTo(17,-43);ctx.lineTo(2,-34);ctx.fill();ctx.fillStyle='#ff4b84';ctx.fillRect(-8,-21,6,3);ctx.fillRect(3,-21,6,3)}
+ else{ctx.fillStyle='#16213a';ctx.fillRect(-7,-21,5,3);ctx.fillRect(3,-21,5,3);ctx.fillStyle=skin.color;ctx.fillRect(-5,-14,10,2);if(k==='idol'){ctx.fillStyle='#d4edff';ctx.fillRect(13,-9,4,18);ctx.fillStyle='#ffb8ef';ctx.beginPath();ctx.arc(15,-12,5,0,Math.PI*2);ctx.fill()}if(k==='dancer'){ctx.strokeStyle='#b9ffff';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(-13,1);ctx.lineTo(-24,-9);ctx.moveTo(13,1);ctx.lineTo(23,-13);ctx.stroke()}if(k==='encore'){ctx.fillStyle='#e9c7ff';ctx.fillRect(-20,-32,7,7);ctx.fillRect(17,-36,6,6);ctx.fillRect(22,-20,4,4)}}
+}
 else if(k==='crew'||k==='impostor'){ctx.beginPath();ctx.roundRect(-14,-22,28,40,12);ctx.fill();ctx.fillRect(8,-7,12,21);ctx.fillStyle='#b9f6ff';ctx.beginPath();ctx.roundRect(-10,-13,24,14,7);ctx.fill();ctx.fillStyle='#efffff';ctx.fillRect(-6,-11,8,3);if(k==='impostor'){ctx.fillStyle='#151025';ctx.beginPath();ctx.moveTo(-7,12);ctx.lineTo(0,5);ctx.lineTo(7,12);ctx.fill()}}
 else{ctx.fillRect(-15,-20,30,39);ctx.fillStyle=k==='ender'?'#171224':'#3b6540';ctx.fillRect(-12,-17,24,32);ctx.fillStyle=k==='ender'?'#df86ff':'#16291b';ctx.fillRect(-10,-6,8,6);ctx.fillRect(3,-6,8,6);ctx.fillStyle=skin.color;ctx.fillRect(-10,18,8,7);ctx.fillRect(3,18,8,7)}
 ctx.shadowBlur=0;if(m.alert){ctx.strokeStyle='#ff6b80';ctx.lineWidth=3;ctx.beginPath();ctx.arc(0,0,27,0,Math.PI*2);ctx.stroke()}ctx.restore()}
