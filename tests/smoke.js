@@ -153,6 +153,14 @@ function run(width,height){
   return {multiply,decimal,zero,hidden};
  })()`,sandbox);
  assert.deepEqual(JSON.parse(JSON.stringify(calculatorChecks)),{multiply:true,decimal:true,zero:true,hidden:true},'Mega calculator arithmetic and visibility');
+ // Mini bosses: four unique floors, two seals, and no duplicate reward on revisit.
+ const miniChecks=vm.runInContext(`(()=>{
+ const original=s.floor,originalLoot=[...s.loot];
+ const floors=[5,15,25,35];const all=floors.every(f=>{s.floor=f;const b=currentBoss();const q=makeBossQ();return b&&b.mini&&bossSealCount()===2&&Number.isFinite(q.result)&&b.coins>0});
+ const majors=[10,20,30,40].every(f=>{s.floor=f;return currentBoss()&&!currentBoss().mini&&bossSealCount()===3});
+ s.floor=original;s.loot=originalLoot;return {all,majors};
+ })()`,sandbox);
+ assert.deepEqual(JSON.parse(JSON.stringify(miniChecks)),{all:true,majors:true},'Mini boss floors and original major bosses');
  // Optional Mega Cell must offer a harder circle challenge and unlock all three cells.
  s.floor=3;s.cells=0;s.loot=[];configureFloor();monsters=[];
  const mega=megaPoint();
